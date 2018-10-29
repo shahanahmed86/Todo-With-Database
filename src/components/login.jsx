@@ -16,6 +16,9 @@ class Todo extends Component {
       email: '',
       password: '',
       isSignIn: true,
+      error: '',
+      uid: '',
+      isLoggedIn: false,
     };
   }
   handleChange = event => {
@@ -24,30 +27,62 @@ class Todo extends Component {
       [name]: value,
     });
   }
+
   onLoginHandler = () => {
     const { email, password, isSignIn } = this.state;
-    if (isSignIn) {
-      console.log({isSignIn})
+    if (email.indexOf('@') !== -1 && email.indexOf('.com') !== -1) {
+      if (password.length >= 6) {
+        if (!isSignIn) {
+          firebase.auth().createUserWithEmailAndPassword(email, password)
+          .then(resp => {
+            const uid = resp.user.uid;
+            this.setState({
+              uid,
+            });
+          })
+          .catch(error => {
+            this.setState({
+              error,
+            });
+          })
+        }
+        else {
+          firebase.auth().signInWithEmailAndPassword(email, password)
+          .then(resp => {
+            const uid = resp.user.uid;
+            this.setState({uid})
+            this.props.history.replace('/todo');
+          })
+          .catch(error => {
+            console.log({error});
+          })
+        }
+      }
+      else {
+        alert('Password must atleast be six (06) character long');
+      }
     }
     else {
-      console.log({isSignIn})
+      alert('Email Address must contain "@" & ".com" !');
     }
   }
+
   changeLoginPage = () => {
     this.setState(state => ({
       isSignIn: !state.isSignIn,
     }));
   }
+
   render() {
+    console.log(this.props)
     const { classes } = this.props;
-    console.log(this.state);
     return (
       <div className={classes.motherContainer}>
         <Typography
           variant='h4'
           align='center'
           color='secondary' >
-          TODO App
+          Todo App
         </Typography>
         <Typography
           variant='h6'

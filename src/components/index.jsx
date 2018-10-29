@@ -1,17 +1,21 @@
 import React, { Component } from "react";
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import LoginPage from './login';
+import Todo from './todo';
 import './config';
 
-class Todo extends Component {
+class TodoWithDatabase extends Component {
     render() {
-        console.log(firebase.database().ref());
-        return(
-            <div>
-                <LoginPage />
-            </div>
+        return (
+            <Router>
+                <div>
+                    <Route exact path='/' component={LoginPage} />
+                    <Route path='/todo' component={Todo} />
+                </div>
+            </Router>
         );
     }
 }
 
-export default Todo;
+export default TodoWithDatabase;
