@@ -15,7 +15,7 @@ class Todo extends Component {
     this.state = {
       email: '',
       password: '',
-      isSignIn: false,
+      isSignIn: true,
     };
   }
   handleChange = event => {
@@ -44,13 +44,13 @@ class Todo extends Component {
     return (
       <div className={classes.motherContainer}>
         <Typography
-          variant='h3'
+          variant='h4'
           align='center'
           color='secondary' >
           TODO App
         </Typography>
         <Typography
-          variant='h5'
+          variant='h6'
           align='center'
           color='textSecondary' >
           Affiliate with Firebase Database
@@ -58,7 +58,7 @@ class Todo extends Component {
         <Card className={classes.container}>
           <CardContent>
             <Typography
-              variant='h4'
+              variant='h5'
               align='center'
               color='textPrimary' >
               Login Page
@@ -103,7 +103,7 @@ class Todo extends Component {
                 variant='h6'
                 align='center'
                 color='textSecondary' >
-                Have already an account ?
+                {this.state.isSignIn ? "Don't have an account" : 'Have already an account ?'}
             </Typography>
               <Button
                 size='small'
