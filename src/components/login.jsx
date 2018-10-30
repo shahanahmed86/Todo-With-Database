@@ -7,20 +7,28 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
 import * as firebase from 'firebase';
 
-class Todo extends Component {
+class LoginPage extends Component {
   constructor() {
     super();
     this.state = {
       email: '',
       password: '',
-      isSignIn: true,
-      error: '',
       uid: '',
+      loginError: {},
+      isSignIn: true,
+      dialogOpen: false,
       isLoggedIn: false,
     };
   }
+
   handleChange = event => {
     const { name, value } = event.target;
     this.setState({
@@ -29,41 +37,50 @@ class Todo extends Component {
   }
 
   onLoginHandler = () => {
-    const { email, password, isSignIn } = this.state;
+    const { email, password, isSignIn, loginError,  } = this.state;
     if (email.indexOf('@') !== -1 && email.indexOf('.com') !== -1) {
       if (password.length >= 6) {
         if (!isSignIn) {
           firebase.auth().createUserWithEmailAndPassword(email, password)
-          .then(resp => {
-            const uid = resp.user.uid;
-            this.setState({
-              uid,
-            });
-          })
-          .catch(error => {
-            this.setState({
-              error,
-            });
-          })
+            .catch(error => {
+              this.setState({
+                loginError: error,
+                dialogOpen: true,
+              });
+            })
         }
         else {
           firebase.auth().signInWithEmailAndPassword(email, password)
-          .then(resp => {
-            const uid = resp.user.uid;
-            this.setState({uid})
-            this.props.history.replace('/todo');
-          })
-          .catch(error => {
-            console.log({error});
-          })
+            .then(resp => {
+              const uid = resp.user.uid;
+              this.setState({
+                uid,
+                isLoggedIn: true,
+              });
+              this.props.history.push('/todo/:uid');
+            })
+            .catch(error => {
+              this.setState({
+                loginError: error,
+                dialogOpen: true,
+              });
+            })
         }
       }
       else {
-        alert('Password must atleast be six (06) character long');
+        loginError.message = 'Password must atleast be six (06) character long';
+        this.setState({
+          loginError,
+          dialogOpen: true,
+        })
       }
     }
     else {
-      alert('Email Address must contain "@" & ".com" !');
+      loginError.message = 'Email Address must contain "@" & ".com" !';
+      this.setState({
+        loginError,
+        dialogOpen: true,
+      })
     }
   }
 
@@ -73,8 +90,15 @@ class Todo extends Component {
     }));
   }
 
+  transition = props => {
+    return <Slide direction='left' {...props} />
+  }
+
+  handleClose = () => {
+    this.setState({ dialogOpen: false });
+  }
+
   render() {
-    console.log(this.props)
     const { classes } = this.props;
     return (
       <div className={classes.motherContainer}>
@@ -96,7 +120,7 @@ class Todo extends Component {
               variant='h5'
               align='center'
               color='textPrimary' >
-              Login Page
+              {this.state.isSignIn ? 'Login Page' : 'Sign-Up Page'}
             </Typography>
             <TextField
               label="Email"
@@ -139,7 +163,7 @@ class Todo extends Component {
                 align='center'
                 color='textSecondary' >
                 {this.state.isSignIn ? "Don't have an account" : 'Have already an account ?'}
-            </Typography>
+              </Typography>
               <Button
                 size='small'
                 color='secondary'
@@ -150,6 +174,27 @@ class Todo extends Component {
             </div>
           </CardActions>
         </Card>
+        <Dialog
+          open={this.state.dialogOpen}
+          TransitionComponent={this.transition}
+          keepMounted
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description">
+          <DialogTitle id="alert-dialog-slide-title">
+            {"Login Authentication !"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+              {this.state.loginError.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="secondary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
@@ -174,8 +219,8 @@ const styles = () => ({
   },
 });
 
-Todo.propTypes = {
+LoginPage.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Todo);
+export default withStyles(styles)(LoginPage);

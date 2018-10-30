@@ -11,7 +11,7 @@ class TodoWithDatabase extends Component {
             <Router>
                 <div>
                     <Route exact path='/' component={LoginPage} />
-                    <Route path='/todo' component={Todo} />
+                    <Route exact path='/todo' component={Todo} />
                 </div>
             </Router>
         );
