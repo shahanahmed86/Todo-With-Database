@@ -14,18 +14,21 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import * as firebase from 'firebase';
+import CircularIndeterminate from './loader';
 
 class LoginPage extends Component {
   constructor() {
     super();
     this.state = {
+      uid: '',
       email: '',
       password: '',
-      uid: '',
-      loginError: {},
+      errorState: false,
       isSignIn: true,
       dialogOpen: false,
-      isLoggedIn: false,
+      loginError: {},
+      success: '',
+      isLoading: false,
     };
   }
 
@@ -37,15 +40,29 @@ class LoginPage extends Component {
   }
 
   onLoginHandler = () => {
-    const { email, password, isSignIn, loginError,  } = this.state;
+    const { email, password, isSignIn, loginError, } = this.state;
+    this.setState({
+      isLoading: true
+    })
     if (email.indexOf('@') !== -1 && email.indexOf('.com') !== -1) {
       if (password.length >= 6) {
         if (!isSignIn) {
           firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(() => {
+              this.setState({
+                success: 'Email Address Successfully Made',
+                dialogOpen: true,
+                isSignIn: true,
+                email: '',
+                password: '',
+                isLoading: false,
+              })
+            })
             .catch(error => {
               this.setState({
                 loginError: error,
                 dialogOpen: true,
+                isLoading: false,
               });
             })
         }
@@ -55,14 +72,15 @@ class LoginPage extends Component {
               const uid = resp.user.uid;
               this.setState({
                 uid,
-                isLoggedIn: true,
+                isLoading: false,
               });
-              this.props.history.push('/todo/:uid');
+              this.props.history.push('/todo', uid);
             })
             .catch(error => {
               this.setState({
                 loginError: error,
                 dialogOpen: true,
+                isLoading: false,
               });
             })
         }
@@ -72,6 +90,7 @@ class LoginPage extends Component {
         this.setState({
           loginError,
           dialogOpen: true,
+          isLoading: false,
         })
       }
     }
@@ -80,6 +99,7 @@ class LoginPage extends Component {
       this.setState({
         loginError,
         dialogOpen: true,
+        isLoading: false,
       })
     }
   }
@@ -100,103 +120,115 @@ class LoginPage extends Component {
 
   render() {
     const { classes } = this.props;
-    return (
-      <div className={classes.motherContainer}>
-        <Typography
-          variant='h4'
-          align='center'
-          color='secondary' >
-          Todo App
-        </Typography>
-        <Typography
-          variant='h6'
-          align='center'
-          color='textSecondary' >
-          Affiliate with Firebase Database
-        </Typography>
-        <Card className={classes.container}>
-          <CardContent>
-            <Typography
-              variant='h5'
-              align='center'
-              color='textPrimary' >
-              {this.state.isSignIn ? 'Login Page' : 'Sign-Up Page'}
-            </Typography>
-            <TextField
-              label="Email"
-              type='email'
-              placeholder='Please enter...'
-              name='email'
-              value={this.state.email}
-              onChange={this.handleChange}
-              fullWidth={true}
-              margin="normal"
-              variant="outlined"
-            />
-            <TextField
-              label="Password"
-              type='password'
-              placeholder='Please enter...'
-              name='password'
-              value={this.state.password}
-              onChange={this.handleChange}
-              fullWidth={true}
-              margin="normal"
-              variant="outlined"
-            />
-          </CardContent>
-          <CardActions>
-            <Button
-              className={classes.centerBox}
-              size='medium'
-              color='primary'
-              variant='contained'
-              type='submit'
-              onClick={this.onLoginHandler} >
-              {this.state.isSignIn ? 'Sign-In' : 'Sign-Up'}
-            </Button>
-          </CardActions>
-          <CardActions>
-            <div className={classes.centerBox}>
+    const { email, password, errorState, loginError, success, isSignIn, dialogOpen, isLoading } = this.state;
+    if (isLoading) {
+      return (
+        <div className={classes.motherContainer}>
+          <CircularIndeterminate />
+        </div>
+      )
+    }
+    else {
+      return (
+        <div className={classes.motherContainer}>
+          <Typography
+            variant='h4'
+            align='center'
+            color='secondary' >
+            Todo App
+          </Typography>
+          <Typography
+            variant='h6'
+            align='center'
+            color='textSecondary' >
+            Affiliate with Firebase Database
+          </Typography>
+          <Card className={classes.container}>
+            <CardContent>
               <Typography
-                variant='h6'
+                variant='h5'
                 align='center'
-                color='textSecondary' >
-                {this.state.isSignIn ? "Don't have an account" : 'Have already an account ?'}
+                color='textPrimary' >
+                {isSignIn ? 'Login Page' : 'Sign-Up Page'}
               </Typography>
+              <TextField
+                label="Email"
+                type='email'
+                placeholder='Please enter...'
+                name='email'
+                value={email}
+                onChange={this.handleChange}
+                fullWidth={true}
+                margin="normal"
+                variant="outlined"
+              />
+              <TextField
+                label="Password"
+                type='password'
+                placeholder='Please enter...'
+                name='password'
+                value={password}
+                onChange={this.handleChange}
+                fullWidth={true}
+                margin="normal"
+                variant="outlined"
+              />
+            </CardContent>
+            <CardActions>
               <Button
-                size='small'
-                color='secondary'
-                variant='outlined'
-                onClick={this.changeLoginPage} >
-                {this.state.isSignIn ? 'Sign-Up' : 'Sign-In'}
+                className={classes.centerBox}
+                size='medium'
+                color='primary'
+                variant='contained'
+                type='submit'
+                onClick={this.onLoginHandler} >
+                {isSignIn ? 'Sign-In' : 'Sign-Up'}
               </Button>
-            </div>
-          </CardActions>
-        </Card>
-        <Dialog
-          open={this.state.dialogOpen}
-          TransitionComponent={this.transition}
-          keepMounted
-          onClose={this.handleClose}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description">
-          <DialogTitle id="alert-dialog-slide-title">
-            {"Login Authentication !"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              {this.state.loginError.message}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose} color="secondary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
+            </CardActions>
+            <CardActions>
+              <div className={classes.centerBox}>
+                <Typography
+                  variant='h6'
+                  align='center'
+                  color='textSecondary' >
+                  {isSignIn ? "Don't have an account" : 'Have already an account ?'}
+                </Typography>
+                <Button
+                  size='small'
+                  color='secondary'
+                  variant='outlined'
+                  onClick={this.changeLoginPage} >
+                  {isSignIn ? 'Sign-Up' : 'Sign-In'}
+                </Button>
+              </div>
+            </CardActions>
+          </Card>
+          <Dialog
+            open={dialogOpen}
+            TransitionComponent={this.transition}
+            keepMounted
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description">
+            <DialogTitle id="alert-dialog-slide-title">
+              {"Login Authentication !"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-slide-description">
+                {errorState ? loginError.message : success}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={this.handleClose}
+                color="secondary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      );
+    }
   }
 }
 
