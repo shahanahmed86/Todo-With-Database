@@ -11,28 +11,14 @@ import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
     root: {
-        width: '50%',
+        width: '100%',
         marginTop: theme.spacing.unit * 3,
-        overflow: 'hidden',
+        overflow: 'auto',
     },
     table: {
         minWidth: 400,
     },
 });
-
-// let id = 0;
-// function createData(Todo, Edit, Delete) {
-//     id += 1;
-//     return { id, Todo, Edit, Delete };
-// }
-
-// const rows = [
-//   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-//   createData('Eclair', 262, 16.0, 24, 6.0),
-//   createData('Cupcake', 305, 3.7, 67, 4.3),
-//   createData('Gingerbread', 356, 16.0, 49, 3.9),
-// ];
 
 class SimpleTable extends Component {
     render() {
@@ -56,12 +42,20 @@ class SimpleTable extends Component {
                                         {row.message}
                                     </TableCell>
                                     <TableCell>
-                                        <Button>
+                                        <Button
+                                            onClick={() => onEdit(row.key, ind)}
+                                            size='medium'
+                                            color='primary'
+                                            variant='contained' >
                                             Edit
                                         </Button>
                                     </TableCell>
                                     <TableCell>
-                                        <Button>
+                                        <Button
+                                            onClick={() => onDelete(row.key, ind)}
+                                            size='medium'
+                                            color='secondary'
+                                            variant='contained' >
                                             Delete
                                         </Button>
                                     </TableCell>

@@ -81,6 +81,21 @@ class TodoApp extends Component {
         }
     }
 
+    onEditHandler = (key, ind) => {
+        const {todo} = this.state;
+        this.setState({
+            message: todo[ind].message,
+            key,
+            editing: true,
+        });
+    }
+
+    onDeleteHandler = (key, ind) => {
+        const {todo, uid} = this.state;
+        todo.splice(ind, 1);
+        this.ref.child(uid).child(key).remove();
+    }
+
     render() {
         const { message, editing, dialogOpen, todo, errorMessage } = this.state;
         const { classes } = this.props;

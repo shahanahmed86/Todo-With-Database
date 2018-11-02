@@ -120,7 +120,6 @@ class LoginPage extends Component {
   render() {
     const { classes } = this.props;
     const { email, password, errorState, loginError, success, dialogOpen, isSignIn, isLoading } = this.state;
-    console.log(this.state);
     if (isLoading) {
       return (
         <div className={classes.motherContainer}>
