@@ -3,18 +3,22 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import AlertDialogSlide from './dialog';
 import * as firebase from 'firebase';
 import './config';
+import Preview from './preview';
 
 class TodoApp extends Component {
     constructor(props) {
         super(props);
         this.state = {
             message: '',
+            dialogOpen: false,
             editing: false,
             todo: [],
             key: '',
             uid: props.location.state,
+            errorMessage: '',
         }
         this.ref = firebase.database().ref();
     }
@@ -24,9 +28,10 @@ class TodoApp extends Component {
     }
 
     getData = () => {
-        const { todo, uid } = this.state;
+        const { uid } = this.state;
         this.ref.child(uid).on('value', snapshot => {
             const obj = snapshot.val();
+            const todo = [];
             for (let key in obj) {
                 obj[key].key = key;
                 todo.push(obj[key]);
@@ -42,15 +47,19 @@ class TodoApp extends Component {
         })
     }
 
+    handleClose = () => {
+        this.setState({
+            dialogOpen: false,
+        })
+    }
+
     onSaveHandler = () => {
-        const { message, uid, todo, key, editing } = this.state;
-        console.log(todo);
+        const { message, uid, key, editing } = this.state;
         if (message) {
             if (!editing) {
                 const key = this.ref.child(uid).push().key;
                 this.ref.child(uid).child(key).set({
-                    message,
-                    key,
+                    message, key,
                 });
             }
             else {
@@ -65,12 +74,15 @@ class TodoApp extends Component {
             });
         }
         else {
-            alert('Field can not be left empty');
+            this.setState({
+                dialogOpen: true,
+                errorMessage: 'Field can not be left empty',
+            })
         }
     }
 
     render() {
-        const { message, editing, todo } = this.state;
+        const { message, editing, dialogOpen, todo, errorMessage } = this.state;
         const { classes } = this.props;
         return (
             <div className={classes.container}>
@@ -90,6 +102,22 @@ class TodoApp extends Component {
                         onClick={this.onSaveHandler} >
                         {editing ? 'Update' : 'Add'}
                     </Button>
+                </div>
+                {Array.isArray(todo) && todo.length > 0 ?
+                    <div>
+                        <Preview
+                            data={todo}
+                            onEdit={this.onEditHandler}
+                            onDelete={this.onDeleteHandler}
+                            />
+                    </div>
+                    :
+                    ''
+                }
+                <div>
+                    <AlertDialogSlide
+                        open={dialogOpen} close={this.handleClose} title='Todo Alert Box'
+                        message={errorMessage} />
                 </div>
             </div>
         );

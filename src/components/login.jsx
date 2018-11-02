@@ -7,14 +7,9 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Slide from '@material-ui/core/Slide';
 import * as firebase from 'firebase';
 import CircularIndeterminate from './loader';
+import AlertDialogSlide from './dialog';
 
 class LoginPage extends Component {
   constructor() {
@@ -50,6 +45,7 @@ class LoginPage extends Component {
           firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
               this.setState({
+                errorState: false,
                 success: 'Email Address Successfully Made',
                 dialogOpen: true,
                 isSignIn: true,
@@ -60,6 +56,7 @@ class LoginPage extends Component {
             })
             .catch(error => {
               this.setState({
+                errorState: true,
                 loginError: error,
                 dialogOpen: true,
                 isLoading: false,
@@ -73,12 +70,14 @@ class LoginPage extends Component {
               this.setState({
                 uid,
                 isLoading: false,
+                errorState: false,
               });
               this.props.history.push('/todo', uid);
             })
             .catch(error => {
               this.setState({
                 loginError: error,
+                errorState: true,
                 dialogOpen: true,
                 isLoading: false,
               });
@@ -89,6 +88,7 @@ class LoginPage extends Component {
         loginError.message = 'Password must atleast be six (06) character long';
         this.setState({
           loginError,
+          errorState: true,
           dialogOpen: true,
           isLoading: false,
         })
@@ -98,6 +98,7 @@ class LoginPage extends Component {
       loginError.message = 'Email Address must contain "@" & ".com" !';
       this.setState({
         loginError,
+        errorState: true,
         dialogOpen: true,
         isLoading: false,
       })
@@ -110,17 +111,16 @@ class LoginPage extends Component {
     }));
   }
 
-  transition = props => {
-    return <Slide direction='left' {...props} />
-  }
-
   handleClose = () => {
-    this.setState({ dialogOpen: false });
+    this.setState({
+      dialogOpen: false,
+    })
   }
 
   render() {
     const { classes } = this.props;
-    const { email, password, errorState, loginError, success, isSignIn, dialogOpen, isLoading } = this.state;
+    const { email, password, errorState, loginError, success, dialogOpen, isSignIn, isLoading } = this.state;
+    console.log(this.state);
     if (isLoading) {
       return (
         <div className={classes.motherContainer}>
@@ -203,29 +203,9 @@ class LoginPage extends Component {
               </div>
             </CardActions>
           </Card>
-          <Dialog
-            open={dialogOpen}
-            TransitionComponent={this.transition}
-            keepMounted
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description">
-            <DialogTitle id="alert-dialog-slide-title">
-              {"Login Authentication !"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-slide-description">
-                {errorState ? loginError.message : success}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={this.handleClose}
-                color="secondary">
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
+          <AlertDialogSlide
+            open={dialogOpen} close={this.handleClose} title='Login Authentication !'
+            message={errorState ? loginError.message : success} />
         </div>
       );
     }
