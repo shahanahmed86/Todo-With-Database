@@ -11,13 +11,16 @@ import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
     root: {
-        width: '100%',
+        width: 'fit-content',
         marginTop: theme.spacing.unit * 3,
         overflow: 'auto',
     },
     table: {
-        minWidth: 400,
+        minWidth: '100%',
     },
+    alignButton: {
+        marginLeft: 4,
+    }
 });
 
 class SimpleTable extends Component {
@@ -31,15 +34,15 @@ class SimpleTable extends Component {
                     <TableHead>
                         <TableRow>
                             <TableCell>Todos</TableCell>
-                            <TableCell>Edit</TableCell>
-                            <TableCell>Delete</TableCell>
+                            <TableCell>Options</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {data.map((row, ind) => {
                             return (
                                 <TableRow key={ind}>
-                                    <TableCell component="th" scope="row">
+                                    <TableCell
+                                        component="th" scope="row">
                                         {row.message}
                                     </TableCell>
                                     <TableCell>
@@ -50,10 +53,9 @@ class SimpleTable extends Component {
                                             variant='contained' >
                                             Edit
                                         </Button>
-                                    </TableCell>
-                                    <TableCell>
                                         <Button
                                             onClick={() => onDelete(row.key, ind)}
+                                            className={classes.alignButton}
                                             size='medium'
                                             color='secondary'
                                             variant='contained' >
