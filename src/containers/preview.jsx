@@ -24,6 +24,7 @@ class SimpleTable extends Component {
     render() {
         const { classes } = this.props;
         const { data, onEdit, onDelete } = this.props;
+        console.log(this.props);
         return (
             <Paper className={classes.root}>
                 <Table className={classes.table}>

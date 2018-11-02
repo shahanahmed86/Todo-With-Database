@@ -8,8 +8,8 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import * as firebase from 'firebase';
-import CircularIndeterminate from './loader';
-import AlertDialogSlide from './dialog';
+import CircularIndeterminate from '../containers/loader';
+import AlertDialogSlide from '../containers/dialog';
 
 class LoginPage extends Component {
   constructor() {

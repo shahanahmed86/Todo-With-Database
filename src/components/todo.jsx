@@ -3,10 +3,11 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import AlertDialogSlide from './dialog';
 import * as firebase from 'firebase';
+import CircularIndeterminate from '../containers/loader';
+import AlertDialogSlide from '../containers/dialog';
 import './config';
-import Preview from './preview';
+import Preview from '../containers/preview';
 
 class TodoApp extends Component {
     constructor(props) {
@@ -19,11 +20,15 @@ class TodoApp extends Component {
             key: '',
             uid: props.location.state,
             errorMessage: '',
+            isLoading: false,
         }
         this.ref = firebase.database().ref();
     }
 
     componentDidMount() {
+        this.setState({
+            isLoading: true,
+        })
         this.getData();
     }
 
@@ -36,7 +41,10 @@ class TodoApp extends Component {
                 obj[key].key = key;
                 todo.push(obj[key]);
             }
-            this.setState({ todo })
+            this.setState({
+                todo,
+                isLoading: false,
+            })
         })
     }
 
@@ -55,6 +63,9 @@ class TodoApp extends Component {
 
     onSaveHandler = () => {
         const { message, uid, key, editing } = this.state;
+        this.setState({
+            isLoading: true,
+        })
         if (message) {
             if (!editing) {
                 const key = this.ref.child(uid).push().key;
@@ -71,33 +82,42 @@ class TodoApp extends Component {
                 message: '',
                 key: '',
                 editing: false,
+                isLoading: false,
             });
         }
         else {
             this.setState({
+                isLoading: false,
                 dialogOpen: true,
                 errorMessage: 'Field can not be left empty',
             })
         }
+        this.getData();
     }
 
     onEditHandler = (key, ind) => {
-        const {todo} = this.state;
+        const { todo } = this.state;
         this.setState({
             message: todo[ind].message,
             key,
             editing: true,
+            isLoading: false,
         });
     }
 
     onDeleteHandler = (key, ind) => {
-        const {todo, uid} = this.state;
+        const { todo, uid } = this.state;
         todo.splice(ind, 1);
         this.ref.child(uid).child(key).remove();
+        this.setState({
+            todo,
+            isLoading: false,
+        })
+        this.getData();
     }
 
     render() {
-        const { message, editing, dialogOpen, todo, errorMessage } = this.state;
+        const { message, editing, dialogOpen, todo, errorMessage, isLoading } = this.state;
         const { classes } = this.props;
         return (
             <div className={classes.container}>
@@ -111,23 +131,25 @@ class TodoApp extends Component {
                         variant='standard' />
                     <Button
                         className={classes.alignBox}
-                        color='secondary'
+                        color={editing ? 'default' : 'primary'}
                         size='small'
                         variant='contained'
                         onClick={this.onSaveHandler} >
                         {editing ? 'Update' : 'Add'}
                     </Button>
                 </div>
-                {Array.isArray(todo) && todo.length > 0 ?
-                    <div>
+                {isLoading ?
+                    <div className={classes.motherContainer}>
+                        <CircularIndeterminate />
+                    </div>
+                    :
+                    Array.isArray(todo) && todo.length > 0 ?
                         <Preview
                             data={todo}
                             onEdit={this.onEditHandler}
-                            onDelete={this.onDeleteHandler}
-                            />
-                    </div>
-                    :
-                    ''
+                            onDelete={this.onDeleteHandler} />
+                        :
+                        ''
                 }
                 <div>
                     <AlertDialogSlide
@@ -145,6 +167,14 @@ const styles = () => ({
         margin: 'auto',
         overflow: 'hidden',
         marginTop: 10,
+    },
+    motherContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '85vw',
+        height: '70vh',
     },
     alignBox: {
         margin: '15px 5px',
