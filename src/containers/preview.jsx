@@ -27,7 +27,6 @@ class SimpleTable extends Component {
     render() {
         const { classes } = this.props;
         const { data, onEdit, onDelete } = this.props;
-        console.log(this.props);
         return (
             <Paper className={classes.root}>
                 <Table className={classes.table}>
@@ -48,7 +47,7 @@ class SimpleTable extends Component {
                                     <TableCell>
                                         <Button
                                             onClick={() => onEdit(row.key, ind)}
-                                            size='medium'
+                                            size='small'
                                             color='primary'
                                             variant='contained' >
                                             Edit
@@ -56,7 +55,7 @@ class SimpleTable extends Component {
                                         <Button
                                             onClick={() => onDelete(row.key, ind)}
                                             className={classes.alignButton}
-                                            size='medium'
+                                            size='small'
                                             color='secondary'
                                             variant='contained' >
                                             Delete

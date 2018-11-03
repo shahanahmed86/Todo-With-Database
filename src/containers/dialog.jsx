@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 
 function Transition(props) {
-    return <Slide direction="up" {...props} />;
+    return <Slide direction="left" {...props} />;
 }
 
 class AlertDialogSlide extends Component {

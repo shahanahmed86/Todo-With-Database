@@ -4,10 +4,11 @@ import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import * as firebase from 'firebase';
+import './config';
 import CircularIndeterminate from '../containers/loader';
 import AlertDialogSlide from '../containers/dialog';
-import './config';
 import Preview from '../containers/preview';
+import ButtonAppBar from '../containers/appbar';
 
 class TodoApp extends Component {
     constructor(props) {
@@ -21,6 +22,7 @@ class TodoApp extends Component {
             uid: props.location.state,
             errorMessage: '',
             isLoading: false,
+            name: '',
         }
         this.ref = firebase.database().ref();
     }
@@ -40,6 +42,11 @@ class TodoApp extends Component {
             for (let key in obj) {
                 obj[key].key = key;
                 todo.push(obj[key]);
+            }
+            if (firebase.auth().currentUser) {
+                this.setState({
+                    email: firebase.auth().currentUser.email,
+                })
             }
             this.setState({
                 todo,
@@ -116,12 +123,33 @@ class TodoApp extends Component {
         this.getData();
     }
 
+    onSignOut = () => {
+        this.setState({
+            isLoading: true,
+        });
+        firebase.auth().signOut()
+        .then(() => {
+            this.props.history.replace('/');
+            console.log('Signout Successfull');
+        })
+        .catch(error => {
+            this.setState({
+                isLoading: false,
+                dialogOpen: true,
+                errorMessage: error,
+            })
+        })
+    }
+
     render() {
         const { message, editing, dialogOpen, todo, errorMessage, isLoading } = this.state;
         const { classes } = this.props;
         return (
             <div className={classes.container}>
-                <div>
+                <ButtonAppBar
+                    name={this.state.email}
+                    signOut={this.onSignOut} />
+                <div className={classes.alignBox}>
                     <TextField
                         label='Todo'
                         placeholder='Please type'
@@ -163,7 +191,7 @@ class TodoApp extends Component {
 
 const styles = () => ({
     container: {
-        width: '87%',
+        width: '100%',
         margin: 'auto',
         overflow: 'hidden',
         marginTop: 10,
