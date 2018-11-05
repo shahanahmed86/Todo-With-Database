@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import * as firebase from 'firebase';
 import CircularIndeterminate from '../containers/loader';
-import AlertDialogSlide from '../containers/dialog';
+import PositionedSnackbar from '../containers/snackbar';
 
 class LoginPage extends Component {
   constructor() {
@@ -186,8 +186,8 @@ class LoginPage extends Component {
               </div>
             </CardActions>
           </Card>
-          <AlertDialogSlide
-            open={dialogOpen} close={this.handleClose} title='Login Authentication !'
+          <PositionedSnackbar
+            open={dialogOpen} close={this.handleClose}
             message={errorState ? loginError.message : success} />
         </div>
       );

@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import * as firebase from 'firebase';
 import './config';
 import CircularIndeterminate from '../containers/loader';
-import AlertDialogSlide from '../containers/dialog';
+import PositionedSnackbar from '../containers/snackbar';
 import Preview from '../containers/preview';
 import ButtonAppBar from '../containers/appbar';
 
@@ -129,18 +129,18 @@ class TodoApp extends Component {
             isLoading: true,
         });
         firebase.auth().signOut()
-        .then(() => {
-            this.props.history.push('/');
-            console.log('Signout Successfull');
-        })
-        .catch(error => {
-            this.onError(false, true, error)
-            this.setState({
-                isLoading: false,
-                dialogOpen: true,
-                errorMessage: error,
+            .then(() => {
+                this.props.history.push('/');
+                console.log('Signout Successfull');
             })
-        })
+            .catch(error => {
+                this.onError(false, true, error)
+                this.setState({
+                    isLoading: false,
+                    dialogOpen: true,
+                    errorMessage: error,
+                })
+            })
     }
 
     onError = (isLoading, dialogOpen, errorMessage) => {
@@ -185,8 +185,8 @@ class TodoApp extends Component {
                         :
                         ''
                 }
-                <AlertDialogSlide
-                    open={dialogOpen} close={this.handleClose} title='Todo Alert Box'
+                <PositionedSnackbar
+                    open={dialogOpen} close={this.handleClose}
                     message={errorMessage} />
             </div>
         );
