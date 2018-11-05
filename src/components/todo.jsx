@@ -31,7 +31,12 @@ class TodoApp extends Component {
         this.setState({
             isLoading: true,
         })
-        this.getData();
+        if (this.state.uid) {
+            this.getData();
+        }
+        else {
+            this.props.history.push('/');
+        }
     }
 
     getData = () => {
@@ -93,11 +98,7 @@ class TodoApp extends Component {
             });
         }
         else {
-            this.setState({
-                isLoading: false,
-                dialogOpen: true,
-                errorMessage: 'Field can not be left empty',
-            })
+            this.onError(false, true, 'Field can not be left empty')
         }
         this.getData();
     }
@@ -129,10 +130,11 @@ class TodoApp extends Component {
         });
         firebase.auth().signOut()
         .then(() => {
-            this.props.history.replace('/');
+            this.props.history.push('/');
             console.log('Signout Successfull');
         })
         .catch(error => {
+            this.onError(false, true, error)
             this.setState({
                 isLoading: false,
                 dialogOpen: true,
@@ -141,13 +143,17 @@ class TodoApp extends Component {
         })
     }
 
+    onError = (isLoading, dialogOpen, errorMessage) => {
+        this.setState({ isLoading, dialogOpen, errorMessage });
+    }
+
     render() {
-        const { message, editing, dialogOpen, todo, errorMessage, isLoading } = this.state;
+        const { email, message, editing, dialogOpen, todo, errorMessage, isLoading } = this.state;
         const { classes } = this.props;
         return (
             <div className={classes.container}>
                 <ButtonAppBar
-                    name={this.state.email}
+                    name={email}
                     signOut={this.onSignOut} />
                 <div className={classes.alignBox}>
                     <TextField
@@ -179,11 +185,9 @@ class TodoApp extends Component {
                         :
                         ''
                 }
-                <div>
-                    <AlertDialogSlide
-                        open={dialogOpen} close={this.handleClose} title='Todo Alert Box'
-                        message={errorMessage} />
-                </div>
+                <AlertDialogSlide
+                    open={dialogOpen} close={this.handleClose} title='Todo Alert Box'
+                    message={errorMessage} />
             </div>
         );
     }

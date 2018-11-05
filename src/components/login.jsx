@@ -55,12 +55,7 @@ class LoginPage extends Component {
               })
             })
             .catch(error => {
-              this.setState({
-                errorState: true,
-                loginError: error,
-                dialogOpen: true,
-                isLoading: false,
-              });
+              this.onError(true, error, true, false);
             })
         }
         else {
@@ -75,33 +70,18 @@ class LoginPage extends Component {
               this.props.history.push('/todo', uid);
             })
             .catch(error => {
-              this.setState({
-                loginError: error,
-                errorState: true,
-                dialogOpen: true,
-                isLoading: false,
-              });
+              this.onError(true, error, true, false);
             })
         }
       }
       else {
         loginError.message = 'Password must atleast be six (06) character long';
-        this.setState({
-          loginError,
-          errorState: true,
-          dialogOpen: true,
-          isLoading: false,
-        })
+        this.onError(true, loginError, true, false);
       }
     }
     else {
       loginError.message = 'Email Address must contain "@" & ".com" !';
-      this.setState({
-        loginError,
-        errorState: true,
-        dialogOpen: true,
-        isLoading: false,
-      })
+      this.onError(true, loginError, true, false);
     }
   }
 
@@ -115,6 +95,10 @@ class LoginPage extends Component {
     this.setState({
       dialogOpen: false,
     })
+  }
+
+  onError = (errorState, loginError, dialogOpen, isLoading) => {
+    this.setState({ errorState, loginError, dialogOpen, isLoading });
   }
 
   render() {
