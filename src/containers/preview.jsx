@@ -13,14 +13,11 @@ const styles = theme => ({
     root: {
         width: 'fit-content',
         marginTop: theme.spacing.unit * 3,
-        overflow: 'auto',
+        overflowX: 'auto',
     },
     table: {
-        minWidth: '100%',
+        minWidth: 250,
     },
-    alignButton: {
-        marginLeft: 4,
-    }
 });
 
 class SimpleTable extends Component {
@@ -29,11 +26,14 @@ class SimpleTable extends Component {
         const { data, onEdit, onDelete } = this.props;
         return (
             <Paper className={classes.root}>
-                <Table className={classes.table}>
+                <Table
+                    className={classes.table}
+                    padding='checkbox'>
                     <TableHead>
                         <TableRow>
                             <TableCell>Todos</TableCell>
                             <TableCell>Options</TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -52,9 +52,10 @@ class SimpleTable extends Component {
                                             variant='contained' >
                                             Edit
                                         </Button>
+                                    </TableCell>
+                                    <TableCell>
                                         <Button
                                             onClick={() => onDelete(row.key, ind)}
-                                            className={classes.alignButton}
                                             size='small'
                                             color='secondary'
                                             variant='contained' >

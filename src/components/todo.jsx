@@ -22,7 +22,7 @@ class TodoApp extends Component {
             uid: props.location.state,
             errorMessage: '',
             isLoading: false,
-            name: '',
+            email: '',
         }
         this.ref = firebase.database().ref();
     }
@@ -35,7 +35,7 @@ class TodoApp extends Component {
             this.getData();
         }
         else {
-            this.props.history.push('/');
+            this.props.history.replace('/');
         }
     }
 
@@ -130,8 +130,7 @@ class TodoApp extends Component {
         });
         firebase.auth().signOut()
             .then(() => {
-                this.props.history.push('/');
-                console.log('Signout Successfull');
+                this.props.history.replace('/');
             })
             .catch(error => {
                 this.onError(false, true, error)

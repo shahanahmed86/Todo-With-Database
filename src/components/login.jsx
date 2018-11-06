@@ -67,7 +67,7 @@ class LoginPage extends Component {
                 isLoading: false,
                 errorState: false,
               });
-              this.props.history.push('/todo', uid);
+              this.props.history.replace('/todo', uid);
             })
             .catch(error => {
               this.onError(true, error, true, false);
