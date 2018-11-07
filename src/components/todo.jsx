@@ -120,6 +120,8 @@ class TodoApp extends Component {
         this.setState({
             todo,
             isLoading: false,
+            editing: false,
+            message: '',
         })
         this.getData();
     }
