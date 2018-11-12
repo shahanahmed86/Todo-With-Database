@@ -4,11 +4,24 @@ import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import * as firebase from 'firebase';
+import { connect } from 'react-redux';
 import './config';
 import CircularIndeterminate from '../containers/loader';
 import PositionedSnackbar from '../containers/snackbar';
 import Preview from '../containers/preview';
 import ButtonAppBar from '../containers/appbar';
+
+const mapStateToProps = store => {
+    return {
+        storeData: store,
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onSaveHandler: todo => dispatch({ type: 'success', payload: todo }),
+    }
+}
 
 class TodoApp extends Component {
     constructor(props) {
@@ -17,7 +30,6 @@ class TodoApp extends Component {
             message: '',
             dialogOpen: false,
             editing: false,
-            todo: [],
             key: '',
             uid: props.location.state,
             errorMessage: '',
@@ -54,9 +66,9 @@ class TodoApp extends Component {
                 })
             }
             this.setState({
-                todo,
                 isLoading: false,
-            })
+            });
+            this.props.onSaveHandler(todo);
         })
     }
 
@@ -104,9 +116,9 @@ class TodoApp extends Component {
     }
 
     onEditHandler = (key, ind) => {
-        const { todo } = this.state;
+        const { storeData } = this.props;
         this.setState({
-            message: todo[ind].message,
+            message: storeData[ind].message,
             key,
             editing: true,
             isLoading: false,
@@ -114,11 +126,9 @@ class TodoApp extends Component {
     }
 
     onDeleteHandler = (key, ind) => {
-        const { todo, uid } = this.state;
-        todo.splice(ind, 1);
+        const { uid } = this.state;
         this.ref.child(uid).child(key).remove();
         this.setState({
-            todo,
             isLoading: false,
             editing: false,
             message: '',
@@ -136,11 +146,6 @@ class TodoApp extends Component {
             })
             .catch(error => {
                 this.onError(false, true, error)
-                this.setState({
-                    isLoading: false,
-                    dialogOpen: true,
-                    errorMessage: error,
-                })
             })
     }
 
@@ -149,8 +154,10 @@ class TodoApp extends Component {
     }
 
     render() {
-        const { email, message, editing, dialogOpen, todo, errorMessage, isLoading } = this.state;
+        const { email, message, editing, dialogOpen, errorMessage, isLoading } = this.state;
+        const { storeData } = this.props;
         const { classes } = this.props;
+        console.log(this.state);
         return (
             <div className={classes.container}>
                 <ButtonAppBar
@@ -178,9 +185,9 @@ class TodoApp extends Component {
                         <CircularIndeterminate />
                     </div>
                     :
-                    Array.isArray(todo) && todo.length > 0 ?
+                    Array.isArray(storeData) && storeData.length > 0 ?
                         <Preview
-                            data={todo}
+                            data={storeData}
                             onEdit={this.onEditHandler}
                             onDelete={this.onDeleteHandler} />
                         :
@@ -218,4 +225,4 @@ TodoApp.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(TodoApp);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(TodoApp));
